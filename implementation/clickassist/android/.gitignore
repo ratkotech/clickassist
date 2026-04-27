@@ -1,0 +1,19 @@
+﻿# Android local config and build output
+.gradle/
+build/
+/local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+.kotlin/
+
+# Generated APK/AAB output
+*.apk
+*.aab
+*.ap_
+output-metadata.json
+
+# Signing secrets
+*.jks
+*.keystore
+key.properties

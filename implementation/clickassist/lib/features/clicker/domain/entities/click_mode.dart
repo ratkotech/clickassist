@@ -1,0 +1,1 @@
+enum ClickMode { infinite, count }

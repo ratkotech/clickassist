@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ClickAssist</string>
+    <string name="app_description">Professional auto-click automation with manual targets, overlays, presets, and accessibility-powered tap control.</string>
+    <string name="clickassist_accessibility_description">Allows ClickAssist to simulate taps by using Android accessibility gestures.</string>
+    <string name="clickassist_accessibility_summary">Tap automation for repeated click patterns and multi-point runs.</string>
+    <string name="clickassist_accessibility_label">ClickAssist Accessibility</string>
+</resources>

@@ -1,34 +1,78 @@
-# Gradle files
-.gradle/
+﻿# Dart / Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
 build/
+coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
 
-# Local configuration file (sdk path, etc)
+# Android / Gradle
+.gradle/
+**/.gradle/
+**/build/
+**/captures/
+**/.externalNativeBuild/
+**/.cxx/
+**/.kotlin/
 local.properties
-
-# Log/OS Files
-*.log
-
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.aab
 *.apk
+*.aab
+*.ap_
 output-metadata.json
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+# Keep the curated public APK available for personal use.
+!release-artifacts/
+!release-artifacts/*.apk
 
-# Keystore files
+# iOS / macOS
+**/Pods/
+**/.symlinks/
+**/Flutter/Flutter.framework
+**/Flutter/Flutter.podspec
+**/Flutter/Generated.xcconfig
+**/Flutter/flutter_export_environment.sh
+**/Flutter/ephemeral/
+**/Flutter/App.framework
+**/ServiceDefinitions.json
+DerivedData/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+
+# Desktop generated folders
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Logs / OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Secrets / signing
 *.jks
 *.keystore
-
-# Google Services (e.g. APIs or Firebase)
+key.properties
+.env
+.env.*
 google-services.json
+GoogleService-Info.plist
 
-# Android Profiling
+# Profiling / dumps
 *.hprof
+*.dmp
+
+# Flutter obfuscation / symbolication
+app.*.symbols
+app.*.map.json

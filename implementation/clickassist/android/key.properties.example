@@ -1,0 +1,4 @@
+storePassword=change-me
+keyPassword=change-me
+keyAlias=clickassist-upload
+storeFile=../keystores/clickassist-upload.jks

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/overlayRoot"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/overlayCompactButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/overlay_compact_background"
+        android:elevation="10dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="14dp">
+
+        <ImageView
+            android:id="@+id/overlayCompactIcon"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:contentDescription="Open overlay controls"
+            android:src="@android:drawable/ic_media_play"
+            android:tint="#EAF8FF" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/overlayExpandedBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/overlay_background"
+        android:elevation="12dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:id="@+id/overlayPlayButtonContainer"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/overlay_button_active_background">
+
+            <ImageView
+                android:id="@+id/overlayPlayButton"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center"
+                android:contentDescription="Play or pause automation"
+                android:tint="#081221" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/overlayStopButtonContainer"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/overlay_button_background">
+
+            <ImageView
+                android:id="@+id/overlayStopButton"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="Stop automation"
+                android:src="@android:drawable/ic_media_pause"
+                android:tint="#FFFFFF" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/overlaySettingsButtonContainer"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/overlay_button_background">
+
+            <ImageView
+                android:id="@+id/overlaySettingsButton"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="Open settings"
+                android:src="@android:drawable/ic_menu_manage"
+                android:tint="#93A4C8" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

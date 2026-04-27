@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#16050B1D">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_margin="20dp"
+        android:background="@drawable/overlay_background"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp">
+
+        <TextView
+            android:id="@+id/pointPickerHint"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/pointPickerCloseButton"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="Cancel picker"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"
+            android:tint="#93A4C8" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/pointPickerSurface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_margin="20dp"
+            android:background="@drawable/overlay_background"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="12dp">
+
+            <TextView
+                android:id="@+id/pointPickerCoordinates"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="X 0 | Y 0"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pointPickerConfirmButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="8dp"
+                android:text="Confirm"
+                android:textColor="#12C8FF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/pointPickerMarker"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="top|start">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:contentDescription="Target marker"
+                android:src="@android:drawable/ic_menu_mylocation"
+                android:tint="#12C8FF" />
+
+            <View
+                android:layout_width="6dp"
+                android:layout_height="6dp"
+                android:layout_gravity="center"
+                android:background="#9BEAFF" />
+        </FrameLayout>
+    </FrameLayout>
+
+</FrameLayout>

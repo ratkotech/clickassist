@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="clickassist_launch_background">#050B1D</color>
+    <color name="clickassist_launch_panel">#0F1B3A</color>
+    <color name="clickassist_primary">#1ECFFF</color>
+    <color name="clickassist_primary_soft">#9BEAFF</color>
+</resources>

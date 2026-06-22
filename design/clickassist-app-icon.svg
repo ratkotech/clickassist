@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="4096"
+  height="4096"
+  viewBox="0 0 108 108"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">ClickAssist app icon</title>
+  <desc id="description">A cyan circular play symbol on a rounded dark blue gradient tile.</desc>
+
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="108" y2="108" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#101B3A" />
+      <stop offset="1" stop-color="#050B1D" />
+    </linearGradient>
+  </defs>
+
+  <rect width="108" height="108" rx="24" fill="url(#background)" />
+
+  <!-- Exact artwork exported from Android's adaptive launcher icon vectors. -->
+  <path
+    d="M54 12A42 42 0 1 1 12 54 42 42 0 0 1 54 12Z"
+    fill="#1ECFFF"
+  />
+  <path
+    d="M54 20A34 34 0 1 1 20 54 34 34 0 0 1 54 20Z"
+    fill="#08162E"
+  />
+  <path d="M44 35 70 54 44 73Z" fill="#1ECFFF" />
+  <path
+    d="M54 6A48 48 0 1 1 6 54 48 48 0 0 1 54 6ZM54 10A44 44 0 1 0 98 54 44 44 0 0 0 54 10Z"
+    fill="#9BEAFF"
+    fill-rule="evenodd"
+  />
+</svg>

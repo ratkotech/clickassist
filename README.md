@@ -1,5 +1,9 @@
 ﻿# ClickAssist
 
+<p align="center">
+  <img src="design/logo.png" alt="ClickAssist - Precision tap automation" width="320">
+</p>
+
 **User-controlled tap and swipe automation for Android.**
 
 ClickAssist is an open-source Flutter + Kotlin app for building repeatable tap and swipe routines on Android. It is designed around transparency, manual setup, visible controls, and local-only configuration so users understand exactly what is being automated.
@@ -12,6 +16,11 @@ ClickAssist is an open-source Flutter + Kotlin app for building repeatable tap a
 
 [Watch the demo video](design/Video.webm)
 
+## Screenshots
+
+<p align="center">
+  <img src="design/Display.png" alt="ClickAssist automation dashboard" width="320">
+</p>
 
 ## What It Does
 
@@ -58,11 +67,11 @@ flutter run
 ### Build Android Debug APK
 
 ```bash
-cd implementation/clickassist/android
-./gradlew assembleDebug
+cd implementation/clickassist
+flutter build apk --debug
 ```
 
-On Windows:
+For a Gradle-only build on Windows:
 
 ```powershell
 cd implementation\clickassist\android
@@ -114,7 +123,7 @@ Read the full [Privacy Policy](privacy-policy.md) and [Responsible Use](responsi
 
 - Flutter / Dart for the app UI and state layer.
 - Riverpod for state management.
-- Hive and shared preferences for local storage.
+- Hive for local presets, onboarding state, and app preferences.
 - Kotlin for Android gesture execution, accessibility service, overlay service, and platform bridge.
 - Flutter MethodChannel and EventChannel for native integration.
 
@@ -126,7 +135,6 @@ Read the full [Privacy Policy](privacy-policy.md) and [Responsible Use](responsi
 - [Overlay System](docs/overlay-system.md)
 - [Presets System](docs/presets-system.md)
 - [Play Store Review Checklist](docs/play-store-review-checklist.md)
-- [Diagrams](docs/diagrams/README.md)
 
 ## Project Structure
 
@@ -134,16 +142,16 @@ Read the full [Privacy Policy](privacy-policy.md) and [Responsible Use](responsi
 clickassist/
 ├── design/
 ├── docs/
-├── documentation/
 └── implementation/
     └── clickassist/
         ├── android/
         ├── assets/
+        │   └── branding/
         ├── lib/
+        ├── test/
         └── pubspec.yaml
 ```
 
 ## License
 
 This project is licensed under the terms in [LICENSE](LICENSE).
-

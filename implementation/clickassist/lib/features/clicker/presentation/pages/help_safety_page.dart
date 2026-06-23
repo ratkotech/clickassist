@@ -7,6 +7,7 @@ import '../../../../core/config/app_support_config.dart';
 import '../../../../core/services/click_assist_platform_service.dart';
 import '../widgets/clicker_section_card.dart';
 import '../widgets/info_page_scaffold.dart';
+import '../widgets/permission_info_card.dart';
 
 class HelpSafetyPage extends StatelessWidget {
   const HelpSafetyPage({super.key});
@@ -78,33 +79,41 @@ class HelpSafetyPage extends StatelessWidget {
           icon: Icons.verified_user_outlined,
           child: const Column(
             children: [
-              _PermissionItem(
+              PermissionInfoCard(
+                icon: Icons.accessibility_new_rounded,
                 title: 'Accessibility service',
-                body:
-                    'Used only to simulate taps and swipes that you configure. You can choose not to enable it, but automation outside the app will not run without it.',
+                description:
+                    'Required to dispatch the taps and swipes you configure in other apps. ClickAssist does not read screen content or enable this permission automatically.',
               ),
               SizedBox(height: AppSpacing.md),
-              _PermissionItem(
+              PermissionInfoCard(
+                icon: Icons.picture_in_picture_alt_rounded,
                 title: 'Display over other apps',
-                body:
+                description:
                     'Used for the floating overlay and on-screen target picker. You can keep it disabled if you do not want overlay controls.',
+                isOptional: true,
               ),
               SizedBox(height: AppSpacing.md),
-              _PermissionItem(
+              PermissionInfoCard(
+                icon: Icons.notifications_outlined,
                 title: 'Notifications',
-                body:
+                description:
                     'Used for foreground controls and status updates while background services are active. You can choose not to enable it, but native quick controls may be limited.',
+                isOptional: true,
               ),
               SizedBox(height: AppSpacing.md),
-              _PermissionItem(
+              PermissionInfoCard(
+                icon: Icons.battery_saver_outlined,
                 title: 'Battery optimization exemption',
-                body:
+                description:
                     'Optional reliability setting that can reduce Android background interruptions. You can leave battery optimization on if you prefer.',
+                isOptional: true,
               ),
               SizedBox(height: AppSpacing.md),
-              _PermissionItem(
+              PermissionInfoCard(
+                icon: Icons.layers_outlined,
                 title: 'Foreground service',
-                body:
+                description:
                     'Used when the overlay is active so Android keeps the service visible and user-controlled. This is tied to the app\'s visible status notification.',
               ),
             ],
@@ -177,7 +186,9 @@ class HelpSafetyPage extends StatelessWidget {
                   ),
                   OutlinedButton.icon(
                     onPressed: () {
-                      platformService.openExternalUrl(AppSupportConfig.termsUrl);
+                      platformService.openExternalUrl(
+                        AppSupportConfig.termsUrl,
+                      );
                     },
                     icon: const Icon(Icons.gavel_rounded),
                     label: const Text('Terms / Use'),
@@ -239,28 +250,6 @@ class _InfoBullet extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: AppTextStyles.titleMedium),
-          const SizedBox(height: AppSpacing.xs),
-          Text(body, style: AppTextStyles.bodyMedium),
-        ],
-      ),
-    );
-  }
-}
-
-class _PermissionItem extends StatelessWidget {
-  const _PermissionItem({required this.title, required this.body});
-
-  final String title;
-  final String body;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

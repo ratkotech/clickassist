@@ -28,13 +28,12 @@ class OverlayControlTile extends StatelessWidget {
         ? 'Floating Overlay Ready'
         : 'Floating Overlay';
     final description = !accessibilityEnabled
-        ? 'Enable ClickAssist in Accessibility to use overlay controls.'
+        ? 'Enable ClickAssist Accessibility access first so your configured taps and swipes can run in other apps.'
         : !overlayPermissionEnabled
         ? 'Allow display over other apps so the overlay can stay available across apps.'
         : overlayEnabled
         ? 'Overlay is ready. Use it to start automation from any screen.'
-        : 'Keep a compact control bar available on top of other apps.'
-        ;
+        : 'Keep a compact control bar available on top of other apps.';
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),

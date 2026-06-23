@@ -8,6 +8,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/config/app_support_config.dart';
 import '../../../../core/services/click_assist_platform_service.dart';
+import '../../../../widgets/brand_logo.dart';
 import '../providers/clicker_controller.dart';
 import '../widgets/clicker_section_card.dart';
 import '../widgets/info_page_scaffold.dart';
@@ -293,6 +294,8 @@ Device: $deviceLabel
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Center(child: BrandLogo.full(maxWidth: 180)),
+              const SizedBox(height: AppSpacing.xl),
               Text(
                 'Version ${AppSupportConfig.appVersion}',
                 style: AppTextStyles.titleMedium,

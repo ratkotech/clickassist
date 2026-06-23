@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../widgets/brand_logo.dart';
 import '../../domain/entities/click_input_mode.dart';
 import '../../domain/entities/clicker_preset.dart';
 
@@ -59,19 +60,7 @@ class PresetListSection extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryMuted,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-                    border: Border.all(color: AppColors.stroke),
-                  ),
-                  child: const Icon(
-                    Icons.bookmarks_outlined,
-                    color: AppColors.primaryBright,
-                  ),
-                ),
+                const BrandLogo.mark(size: 56),
                 const SizedBox(height: AppSpacing.lg),
                 Text('No presets yet', style: AppTextStyles.titleLarge),
                 const SizedBox(height: AppSpacing.sm),

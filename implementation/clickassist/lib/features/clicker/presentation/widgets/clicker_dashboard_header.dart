@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../widgets/brand_logo.dart';
 
 class ClickerDashboardHeader extends StatelessWidget {
   const ClickerDashboardHeader({
@@ -29,21 +30,7 @@ class ClickerDashboardHeader extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Click Assist',
-                    style: AppTextStyles.headlineLarge.copyWith(
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text('Tap automation', style: AppTextStyles.bodyMedium),
-                ],
-              ),
-            ),
+            const Expanded(child: BrandLogo.compact(maxWidth: 260)),
             Wrap(
               spacing: AppSpacing.xs,
               children: [

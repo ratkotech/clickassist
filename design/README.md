@@ -4,11 +4,13 @@ This folder contains visual assets and product design references for ClickAssist
 
 ## Assets
 
-- `clickassist-app-icon.png`: lossless 4096 x 4096 PNG export of the ClickAssist Android launcher icon.
-- `clickassist-app-icon.svg`: resolution-independent, editable master of the same launcher icon artwork.
-- `android-ic-launcher-foreground.xml`: Android vector foreground used by the adaptive icon.
-- `android-ic-launcher-background.xml`: Android shape background used by the adaptive icon.
+- `logo.svg`: editable, resolution-independent master of the ClickAssist logo lockup.
+- `logo.png`: lossless 4096 px-wide logo export for documentation and public branding.
 - `Display.png`: app UI preview for README and repository homepage.
+- `Video.webm`: product demonstration used by the repository homepage.
+
+Runtime-ready logo, transparent lockup, and launcher artwork live in
+`implementation/clickassist/assets/branding/`.
 
 ## Planned Design Additions
 

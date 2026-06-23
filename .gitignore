@@ -73,6 +73,9 @@ GoogleService-Info.plist
 *.hprof
 *.dmp
 
+# Local Codex planning artifacts
+/docs/superpowers/
+
 # Flutter obfuscation / symbolication
 app.*.symbols
 app.*.map.json

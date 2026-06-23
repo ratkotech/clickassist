@@ -1,3 +1,4 @@
+import 'package:clickassist/features/clicker/presentation/pages/onboarding_page.dart';
 import 'package:clickassist/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,5 +44,18 @@ void main() {
       tester.getSize(find.byKey(const Key('brand-logo-mark'))),
       const Size(48, 48),
     );
+  });
+
+  testWidgets('onboarding presents the full logo and permission guidance', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(home: OnboardingPage(onContinue: () async {})),
+    );
+
+    expect(find.byKey(const Key('brand-logo-full')), findsOneWidget);
+    expect(find.text('Welcome to ClickAssist'), findsOneWidget);
+    expect(find.textContaining('Accessibility'), findsWidgets);
+    expect(find.text('Continue to App'), findsOneWidget);
   });
 }

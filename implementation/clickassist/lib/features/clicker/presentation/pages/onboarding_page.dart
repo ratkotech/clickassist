@@ -4,6 +4,7 @@ import '../../../../app/routes/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
+import '../../../../widgets/brand_logo.dart';
 import '../widgets/clicker_section_card.dart';
 
 class OnboardingPage extends StatelessWidget {
@@ -33,6 +34,11 @@ class OnboardingPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const Align(
+                  alignment: Alignment.center,
+                  child: BrandLogo.full(maxWidth: 220),
+                ),
+                const SizedBox(height: AppSpacing.xxl),
                 Text(
                   'Welcome to ClickAssist',
                   style: AppTextStyles.headlineLarge.copyWith(
@@ -41,7 +47,7 @@ class OnboardingPage extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'ClickAssist automates taps and swipes that you set up yourself. Before you enable any sensitive permissions, review what the app does and how each permission is used.',
+                  'ClickAssist automates only the taps and swipes you configure. Accessibility access lets those actions run in other apps. Android keeps this permission under system settings, and automation cannot run until you enable it.',
                   style: AppTextStyles.bodyLarge.copyWith(
                     color: AppColors.textSecondary,
                   ),

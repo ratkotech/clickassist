@@ -542,7 +542,7 @@ class ClickerController extends Notifier<ClickerState> {
   }
 
   void setStartDelayMs(int seconds) {
-    final normalizedMs = (seconds.clamp(0, 60) as int) * 1000;
+    final normalizedMs = seconds.clamp(0, 60) * 1000;
     state = state.copyWith(
       startDelayEnabled: normalizedMs > 0,
       startDelayMs: normalizedMs,

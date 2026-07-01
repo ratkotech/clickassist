@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/clicker/domain/entities/click_mode.dart';
+import '../../features/clicker/domain/entities/click_input_mode.dart';
 import '../../features/clicker/domain/entities/click_point.dart';
 import '../../features/clicker/domain/entities/click_point_timing_mode.dart';
 import '../../features/clicker/domain/entities/click_step.dart';
@@ -140,10 +141,7 @@ class ClickAssistPlatformService {
     final uri = Uri(
       scheme: 'mailto',
       path: email,
-      queryParameters: {
-        'subject': subject,
-        'body': body,
-      },
+      queryParameters: {'subject': subject, 'body': body},
     );
     return launchUrl(uri, mode: LaunchMode.externalApplication);
   }
@@ -154,6 +152,7 @@ class ClickAssistPlatformService {
     required TapPattern pattern,
     required bool multiClick,
     required ClickPointTimingMode pointTimingMode,
+    required ClickInputMode inputMode,
     required ClickMode clickMode,
     required int targetCycles,
     required bool showGestureIndicator,
@@ -166,6 +165,7 @@ class ClickAssistPlatformService {
       'pattern': pattern.value,
       'multiClick': multiClick,
       'pointTimingMode': pointTimingMode.value,
+      'inputMode': inputMode.value,
       'infiniteMode': clickMode == ClickMode.infinite,
       'targetCycles': targetCycles,
       'showGestureIndicator': showGestureIndicator,
@@ -216,6 +216,7 @@ class ClickAssistPlatformService {
     required TapPattern pattern,
     required bool multiClick,
     required ClickPointTimingMode pointTimingMode,
+    required ClickInputMode inputMode,
     required ClickMode clickMode,
     required int targetCycles,
     required bool showGestureIndicator,
@@ -230,6 +231,7 @@ class ClickAssistPlatformService {
         'pattern': pattern.value,
         'multiClick': multiClick,
         'pointTimingMode': pointTimingMode.value,
+        'inputMode': inputMode.value,
         'infiniteMode': clickMode == ClickMode.infinite,
         'targetCycles': targetCycles,
         'showGestureIndicator': showGestureIndicator,

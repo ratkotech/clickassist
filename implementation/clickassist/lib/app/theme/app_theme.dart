@@ -13,7 +13,19 @@ class AppTheme {
       brightness: Brightness.dark,
       scaffoldBackgroundColor: AppColors.background,
       primaryColor: AppColors.primary,
-      fontFamily: 'Roboto',
+      fontFamily: AppTextStyles.fontFamily,
+      textTheme: TextTheme(
+        displayLarge: AppTextStyles.headlineLarge,
+        headlineMedium: AppTextStyles.headlineMedium,
+        titleLarge: AppTextStyles.titleLarge,
+        titleMedium: AppTextStyles.titleMedium,
+        bodyLarge: AppTextStyles.bodyLarge,
+        bodyMedium: AppTextStyles.bodyMedium,
+        bodySmall: AppTextStyles.bodySmall,
+        labelLarge: AppTextStyles.buttonText,
+        labelMedium: AppTextStyles.labelUppercase,
+        labelSmall: AppTextStyles.statusLabel,
+      ),
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
         secondary: AppColors.primaryBright,
@@ -25,6 +37,8 @@ class AppTheme {
         centerTitle: false,
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.textPrimary,
+        titleTextStyle: AppTextStyles.titleLarge,
+        toolbarTextStyle: AppTextStyles.bodyMedium,
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
@@ -72,6 +86,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surfaceSecondary,
+        labelStyle: AppTextStyles.bodyMedium,
+        hintStyle: AppTextStyles.bodyMedium,
+        helperStyle: AppTextStyles.bodySmall,
+        errorStyle: AppTextStyles.bodySmall.copyWith(color: AppColors.danger),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,
           vertical: AppSpacing.md,
@@ -102,6 +120,8 @@ class AppTheme {
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.surface,
+        titleTextStyle: AppTextStyles.titleLarge,
+        contentTextStyle: AppTextStyles.bodyMedium,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
           side: const BorderSide(color: AppColors.stroke),

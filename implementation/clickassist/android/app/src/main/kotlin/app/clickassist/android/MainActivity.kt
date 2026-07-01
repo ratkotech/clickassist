@@ -139,6 +139,7 @@ class MainActivity : FlutterActivity() {
             pattern = arguments["pattern"] as? String ?: "single",
             multiClick = arguments["multiClick"] as? Boolean ?: false,
             pointTimingMode = arguments["pointTimingMode"] as? String ?: "sequential",
+            inputMode = arguments["inputMode"] as? String ?: "manual",
             infiniteMode = arguments["infiniteMode"] as? Boolean ?: true,
             targetCycles = (arguments["targetCycles"] as? Number)?.toInt() ?: 50,
             showGestureIndicator = arguments["showGestureIndicator"] as? Boolean ?: true,

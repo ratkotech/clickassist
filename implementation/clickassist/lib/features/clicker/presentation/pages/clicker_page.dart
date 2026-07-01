@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/routes/app_router.dart';
-import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../domain/entities/click_input_mode.dart';
@@ -19,12 +18,14 @@ import '../widgets/clicker_dashboard_header.dart';
 import '../widgets/clicker_interval_field.dart';
 import '../widgets/clicker_section_card.dart';
 import '../widgets/clicker_start_button.dart';
+import '../widgets/dashboard_status_card.dart';
 import '../widgets/health_check_tile.dart';
 import '../widgets/input_mode_selector.dart';
 import '../widgets/overlay_control_tile.dart';
 import '../widgets/pattern_editor_section.dart';
 import '../widgets/point_timing_mode_selector.dart';
 import '../widgets/preset_list_section.dart';
+import '../widgets/setup_guide_card.dart';
 import '../widgets/speed_preset_selector.dart';
 import '../widgets/start_delay_selector.dart';
 import '../widgets/tap_pattern_selector.dart';
@@ -158,9 +159,7 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
     }
   }
 
-  Future<void> _showImportPresetsDialog(
-    ClickerController controller,
-  ) async {
+  Future<void> _showImportPresetsDialog(ClickerController controller) async {
     final textController = TextEditingController();
     String? errorText;
 
@@ -238,9 +237,9 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Invalid preset format')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Invalid preset format')));
     }
   }
 
@@ -250,9 +249,7 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Import Mode'),
-          content: const Text(
-            'Replace existing presets or add to them?',
-          ),
+          content: const Text('Replace existing presets or add to them?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -380,6 +377,7 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
     final state = ref.watch(clickerControllerProvider);
     final controller = ref.read(clickerControllerProvider.notifier);
     final isMimicMode = state.activeInputMode == ClickInputMode.mimic;
+    final dashboardStatus = _dashboardStatusModel(state, controller);
 
     final intervalText = '${state.intervalMs}';
     if (_intervalController.text != intervalText) {
@@ -398,7 +396,9 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final maxContentWidth = constraints.maxWidth >= 1080 ? 920.0 : 720.0;
+            final maxContentWidth = constraints.maxWidth >= 1080
+                ? 920.0
+                : 720.0;
 
             return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(
@@ -415,8 +415,9 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ClickerDashboardHeader(
-                        actionsPerSecond:
-                            state.isRunning ? state.actionsPerSecond : 0,
+                        actionsPerSecond: state.isRunning
+                            ? state.actionsPerSecond
+                            : 0,
                         clicks: state.totalClicks,
                         totalClicks: state.totalClicks,
                         onRefresh: controller.refreshStatus,
@@ -424,42 +425,43 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
                           Navigator.of(context).pushNamed(AppRouter.helpSafety);
                         },
                         onOpenSettings: () {
-                          Navigator.of(context).pushNamed(
-                            AppRouter.settingsLegal,
-                          );
+                          Navigator.of(
+                            context,
+                          ).pushNamed(AppRouter.settingsLegal);
                         },
                       ),
                       const SizedBox(height: AppSpacing.sectionGap),
-                      _StatusBanner(
-                        message: state.statusMessage,
-                        isAlert:
-                            !state.accessibilityEnabled ||
-                            !state.overlayPermissionEnabled ||
-                            state.safetyWarning != null,
-                        actionLabel:
-                            !state.accessibilityEnabled ? 'Enable' : 'Overlay',
-                        onOpenSettings: !state.accessibilityEnabled
-                            ? () {
-                                _handleAccessibilityPermission(controller);
-                              }
-                            : () {
-                                _handleOverlayToggle(
-                                  controller,
-                                  state.accessibilityEnabled,
-                                  state.overlayPermissionEnabled,
-                                );
-                              },
+                      DashboardStatusCard(
+                        tone: dashboardStatus.tone,
+                        title: dashboardStatus.title,
+                        message: dashboardStatus.message,
+                        actionLabel: dashboardStatus.actionLabel,
+                        onAction: dashboardStatus.onAction,
+                        advisoryMessage: state.safetyWarning,
                       ),
-                      if (state.safetyWarning != null) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          state.safetyWarning!,
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: AppColors.warning,
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.sectionGap),
+                      const SizedBox(height: AppSpacing.xl),
+                      SetupGuideCard(
+                        accessibilityEnabled: state.accessibilityEnabled,
+                        overlayPermissionEnabled:
+                            state.overlayPermissionEnabled,
+                        notificationsEnabled: state.notificationsEnabled,
+                        batteryOptimizationIgnored:
+                            state.batteryOptimizationIgnored,
+                        onOpenAccessibility: () {
+                          _handleAccessibilityPermission(controller);
+                        },
+                        onOpenOverlay: () {
+                          _handleOverlayPermission(controller);
+                        },
+                        onOpenNotifications: () {
+                          _handleNotificationDisclosure(controller);
+                        },
+                        onOpenBatteryOptimization: () {
+                          _handleBatteryDisclosure(controller);
+                        },
+                        onRefresh: controller.refreshStatus,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
                       ClickerStartButton(
                         isRunning: state.isRunning,
                         isAccessibilityEnabled: state.accessibilityEnabled,
@@ -523,8 +525,9 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
                         icon: Icons.timer_outlined,
                         initiallyExpanded: false,
                         child: StartDelaySelector(
-                          startDelayMs:
-                              state.startDelayEnabled ? state.startDelayMs : 0,
+                          startDelayMs: state.startDelayEnabled
+                              ? state.startDelayMs
+                              : 0,
                           onPresetSelected: controller.setStartDelayMs,
                           onCustomChanged: (value) {
                             final parsed = int.tryParse(value);
@@ -580,7 +583,8 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
                                   );
                                 },
                                 multiClickEnabled: state.isMultiClickEnabled,
-                                onMultiClickChanged: controller.toggleMultiClick,
+                                onMultiClickChanged:
+                                    controller.toggleMultiClick,
                                 pointPickerActive: state.pointPickerActive,
                                 onCancelPicker: controller.cancelPointCapture,
                               ),
@@ -667,7 +671,8 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
                         initiallyExpanded: false,
                         child: OverlayControlTile(
                           accessibilityEnabled: state.accessibilityEnabled,
-                          overlayPermissionEnabled: state.overlayPermissionEnabled,
+                          overlayPermissionEnabled:
+                              state.overlayPermissionEnabled,
                           overlayEnabled: state.overlayEnabled,
                           overlayVisible: state.overlayVisible,
                           onPressed: () {
@@ -876,55 +881,73 @@ class _ClickerPageState extends ConsumerState<ClickerPage> {
             state.pointTimingMode == ClickPointTimingMode.simultaneous &&
             swipeCount > 2);
   }
-}
 
-class _StatusBanner extends StatelessWidget {
-  const _StatusBanner({
-    required this.message,
-    required this.isAlert,
-    required this.actionLabel,
-    required this.onOpenSettings,
-  });
+  _DashboardStatusModel _dashboardStatusModel(
+    ClickerState state,
+    ClickerController controller,
+  ) {
+    if (!state.accessibilityEnabled) {
+      return _DashboardStatusModel(
+        tone: DashboardStatusTone.blocking,
+        title: 'Accessibility required',
+        message: 'Enable ClickAssist before START can run taps.',
+        actionLabel: 'Enable',
+        onAction: () {
+          _handleAccessibilityPermission(controller);
+        },
+      );
+    }
 
-  final String message;
-  final bool isAlert;
-  final String actionLabel;
-  final VoidCallback onOpenSettings;
+    if (!state.overlayPermissionEnabled) {
+      return _DashboardStatusModel(
+        tone: DashboardStatusTone.warning,
+        title: 'Overlay needed',
+        message: 'Grant overlay access to place targets and use controls.',
+        actionLabel: 'Grant',
+        onAction: () {
+          _handleOverlayPermission(controller);
+        },
+      );
+    }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: isAlert ? AppColors.primaryMuted : const Color(0xFF0D2A44),
-        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(
-          color: isAlert ? AppColors.primary : AppColors.stroke,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            isAlert ? Icons.info_outline_rounded : Icons.check_circle_outline,
-            color: isAlert ? AppColors.primary : AppColors.primaryBright,
-            size: 18,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(
-              message,
-              style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.primaryBright,
-              ),
-            ),
-          ),
-          if (isAlert)
-            TextButton(onPressed: onOpenSettings, child: Text(actionLabel)),
-        ],
-      ),
+    if (state.pointPickerActive) {
+      return _DashboardStatusModel(
+        tone: DashboardStatusTone.warning,
+        title: 'Target picker is active',
+        message: 'Place a target on screen, or cancel the picker to continue.',
+        actionLabel: 'Cancel',
+        onAction: controller.cancelPointCapture,
+      );
+    }
+
+    if (state.isRunning) {
+      return _DashboardStatusModel(
+        tone: DashboardStatusTone.running,
+        title: 'Automation running',
+        message: 'Use STOP or the floating overlay controls to end this run.',
+      );
+    }
+
+    return _DashboardStatusModel(
+      tone: DashboardStatusTone.ready,
+      title: 'Ready to configure',
+      message: state.statusMessage,
     );
   }
+}
+
+class _DashboardStatusModel {
+  const _DashboardStatusModel({
+    required this.tone,
+    required this.title,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  final DashboardStatusTone tone;
+  final String title;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 }

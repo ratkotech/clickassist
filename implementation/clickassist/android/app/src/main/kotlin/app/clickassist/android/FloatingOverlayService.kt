@@ -24,6 +24,7 @@ import android.view.WindowManager
 import android.view.animation.OvershootInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.app.NotificationCompat
 
 class FloatingOverlayService : Service() {
@@ -64,10 +65,15 @@ class FloatingOverlayService : Service() {
 
     private var compactButton: LinearLayout? = null
     private var compactIcon: ImageView? = null
+    private var compactStatus: TextView? = null
     private var expandedBar: LinearLayout? = null
     private var playButton: ImageView? = null
     private var stopButton: ImageView? = null
     private var settingsButton: ImageView? = null
+    private var statusLabel: TextView? = null
+    private var modeLabel: TextView? = null
+    private var speedLabel: TextView? = null
+    private var pickerLabel: TextView? = null
     private var playButtonContainer: View? = null
     private var stopButtonContainer: View? = null
     private var settingsButtonContainer: View? = null
@@ -145,10 +151,15 @@ class FloatingOverlayService : Service() {
     private fun bindOverlayViews(view: View) {
         compactButton = view.findViewById(R.id.overlayCompactButton)
         compactIcon = view.findViewById(R.id.overlayCompactIcon)
+        compactStatus = view.findViewById(R.id.overlayCompactStatus)
         expandedBar = view.findViewById(R.id.overlayExpandedBar)
         playButton = view.findViewById(R.id.overlayPlayButton)
         stopButton = view.findViewById(R.id.overlayStopButton)
         settingsButton = view.findViewById(R.id.overlaySettingsButton)
+        statusLabel = view.findViewById(R.id.overlayStatusLabel)
+        modeLabel = view.findViewById(R.id.overlayModeLabel)
+        speedLabel = view.findViewById(R.id.overlaySpeedLabel)
+        pickerLabel = view.findViewById(R.id.overlayPickerLabel)
         playButtonContainer = view.findViewById(R.id.overlayPlayButtonContainer)
         stopButtonContainer = view.findViewById(R.id.overlayStopButtonContainer)
         settingsButtonContainer = view.findViewById(R.id.overlaySettingsButtonContainer)
@@ -337,15 +348,55 @@ class FloatingOverlayService : Service() {
 
     private fun updateOverlayAppearance() {
         val running = ClickAssistBridge.isRunning()
+        val pointPickerActive = ClickAssistBridge.isPointPickerActive()
+        val summary = ClickAssistBridge.overlaySummary()
+        val statusText = when {
+            pointPickerActive -> "Picking target"
+            running -> "Running"
+            else -> "Ready"
+        }
+        val statusColor = when {
+            pointPickerActive -> COLOR_WARNING
+            running -> COLOR_SUCCESS
+            else -> COLOR_PRIMARY
+        }
+
+        compactButton?.contentDescription = "ClickAssist overlay: $statusText. Tap for controls."
+        compactStatus?.text = when {
+            pointPickerActive -> "PICK"
+            running -> "RUN"
+            else -> "READY"
+        }
+        statusLabel?.apply {
+            text = statusText
+            setTextColor(statusColor)
+        }
+        modeLabel?.text = summary.modeLabel
+        speedLabel?.text = summary.speedLabel
+        pickerLabel?.apply {
+            text = summary.pickerLabel
+            setTextColor(if (pointPickerActive) COLOR_WARNING else COLOR_MUTED)
+        }
+
         compactIcon?.setImageResource(
-            if (running) android.R.drawable.ic_media_pause
-            else android.R.drawable.ic_media_play,
+            when {
+                pointPickerActive -> android.R.drawable.ic_menu_mylocation
+                running -> android.R.drawable.ic_media_pause
+                else -> android.R.drawable.ic_media_play
+            },
         )
         playButton?.setImageResource(
             if (running) android.R.drawable.ic_media_pause
             else android.R.drawable.ic_media_play,
         )
         stopButton?.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
+        val playDescription = if (running) "Pause automation" else "Start automation"
+        playButton?.contentDescription = playDescription
+        playButtonContainer?.contentDescription = playDescription
+        stopButton?.contentDescription = "Stop automation"
+        stopButtonContainer?.contentDescription = "Stop automation"
+        settingsButton?.contentDescription = "Open ClickAssist"
+        settingsButtonContainer?.contentDescription = "Open ClickAssist"
 
         if (running) {
             startPulseAnimation()
@@ -470,9 +521,13 @@ class FloatingOverlayService : Service() {
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(
-                if (ClickAssistBridge.isRunning()) "ClickAssist is running" else "ClickAssist overlay ready",
+                when {
+                    ClickAssistBridge.isPointPickerActive() -> "ClickAssist point picker active"
+                    ClickAssistBridge.isRunning() -> "ClickAssist is running"
+                    else -> "ClickAssist overlay ready"
+                },
             )
-            .setContentText("Use quick overlay controls from any screen.")
+            .setContentText(ClickAssistBridge.overlaySummary().speedLabel)
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setOngoing(true)
             .setContentIntent(pendingIntent)
@@ -520,6 +575,10 @@ class FloatingOverlayService : Service() {
     }
 
     companion object {
+        private val COLOR_PRIMARY = 0xFF12C8FF.toInt()
+        private val COLOR_SUCCESS = 0xFF2EE59D.toInt()
+        private val COLOR_WARNING = 0xFFFFC857.toInt()
+        private val COLOR_MUTED = 0xFF93A4C8.toInt()
         private const val CHANNEL_ID = "clickassist_overlay"
         private const val NOTIFICATION_ID = 4401
         const val ACTION_TOGGLE_CLICKING = "clickassist.action.TOGGLE_CLICKING"

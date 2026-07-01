@@ -21,44 +21,59 @@ class ClickerStartButton extends StatelessWidget {
     final borderColor = isRunning ? AppColors.success : AppColors.primary;
 
     return Center(
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          width: 168,
-          height: 168,
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: borderColor, width: 3),
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isAccessibilityEnabled
-                  ? AppColors.primary
-                  : AppColors.primaryMuted,
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x33000000),
-                  blurRadius: 24,
-                  offset: Offset(0, 12),
+      child: Semantics(
+        button: true,
+        container: true,
+        label: isRunning ? 'Stop automation' : 'Start automation',
+        child: ExcludeSemantics(
+          child: GestureDetector(
+            onTap: onPressed,
+            child: Container(
+              key: const Key('clicker-start-button'),
+              width: 148,
+              height: 148,
+              padding: const EdgeInsets.all(7),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: borderColor, width: 3),
+                boxShadow: [
+                  BoxShadow(
+                    color: borderColor.withValues(alpha: 0.12),
+                    blurRadius: 28,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isAccessibilityEnabled
+                      ? AppColors.primary
+                      : AppColors.primaryMuted,
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x33000000),
+                      blurRadius: 22,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  isRunning ? Icons.stop_rounded : Icons.play_arrow_rounded,
-                  size: 48,
-                  color: AppColors.textPrimary,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isRunning ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                      size: 42,
+                      color: AppColors.textPrimary,
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      isRunning ? 'STOP' : 'START',
+                      style: AppTextStyles.buttonUppercase,
+                    ),
+                  ],
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  isRunning ? 'STOP' : 'START',
-                  style: AppTextStyles.buttonText.copyWith(letterSpacing: 1.6),
-                ),
-              ],
+              ),
             ),
           ),
         ),

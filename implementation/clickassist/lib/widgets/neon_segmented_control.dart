@@ -66,7 +66,8 @@ class NeonSegmentedControl<T> extends StatelessWidget {
           children: [
             for (var i = 0; i < children.length; i++) ...[
               Expanded(child: children[i]),
-              if (i != children.length - 1) const SizedBox(width: AppSpacing.md),
+              if (i != children.length - 1)
+                const SizedBox(width: AppSpacing.md),
             ],
           ],
         );
@@ -115,7 +116,7 @@ class _SegmentTile<T> extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,
-              vertical: AppSpacing.lg,
+              vertical: AppSpacing.md,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,

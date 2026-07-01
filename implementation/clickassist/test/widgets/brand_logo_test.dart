@@ -1,5 +1,6 @@
 import 'package:clickassist/features/clicker/presentation/pages/onboarding_page.dart';
 import 'package:clickassist/features/clicker/presentation/widgets/clicker_dashboard_header.dart';
+import 'package:clickassist/features/clicker/presentation/widgets/clicker_start_button.dart';
 import 'package:clickassist/features/clicker/presentation/widgets/preset_list_section.dart';
 import 'package:clickassist/widgets/brand_logo.dart';
 import 'package:flutter/material.dart';
@@ -118,5 +119,25 @@ void main() {
     );
 
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('start button uses a compact branded footprint', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ClickerStartButton(
+            isRunning: false,
+            isAccessibilityEnabled: false,
+            onPressed: () {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.bySemanticsLabel('Start automation'), findsOneWidget);
+    expect(
+      tester.getSize(find.byKey(const Key('clicker-start-button'))),
+      const Size(148, 148),
+    );
   });
 }

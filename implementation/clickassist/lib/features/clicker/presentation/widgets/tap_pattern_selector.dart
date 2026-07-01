@@ -23,7 +23,7 @@ class TapPatternSelector extends StatelessWidget {
           crossAxisCount: 3,
           crossAxisSpacing: AppSpacing.md,
           mainAxisSpacing: AppSpacing.md,
-          childAspectRatio: 0.9,
+          childAspectRatio: 1.05,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           children: TapPattern.values.map((pattern) {
@@ -48,6 +48,7 @@ class TapPatternSelector extends StatelessWidget {
                   children: [
                     Icon(
                       pattern.icon,
+                      size: 26,
                       color: isSelected
                           ? AppColors.textPrimary
                           : AppColors.textSecondary,

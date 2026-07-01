@@ -48,17 +48,29 @@ class ClickerController extends Notifier<ClickerState> {
 
   Future<void> _initialize() async {
     await loadPresets();
+    if (!ref.mounted) {
+      return;
+    }
     await refreshStatus();
   }
 
   Future<void> refreshStatus() async {
     await _syncConfig();
+    if (!ref.mounted) {
+      return;
+    }
     final status = await _platformService.getStatus();
+    if (!ref.mounted) {
+      return;
+    }
     _applyStatus(status);
   }
 
   Future<void> loadPresets() async {
     final presets = await _presetStorage.loadPresets();
+    if (!ref.mounted) {
+      return;
+    }
     state = state.copyWith(presets: presets);
   }
 
@@ -67,7 +79,9 @@ class ClickerController extends Notifier<ClickerState> {
     final isManualPreset = state.activeInputMode == ClickInputMode.manual;
     final preset = ClickerPreset(
       id: presetId ?? now.microsecondsSinceEpoch.toString(),
-      name: name.trim().isEmpty ? 'Preset ${state.presets.length + 1}' : name.trim(),
+      name: name.trim().isEmpty
+          ? 'Preset ${state.presets.length + 1}'
+          : name.trim(),
       activeInputMode: state.activeInputMode,
       intervalMs: state.intervalMs,
       showGestureIndicator: state.showGestureIndicator,
@@ -170,7 +184,12 @@ class ClickerController extends Notifier<ClickerState> {
       pointTimingMode: preset.pointTimingMode,
       isMultiClickEnabled:
           preset.isMultiClickEnabled &&
-          _stepsForMode(nextInputMode, loadedManualSteps, loadedMimicSteps).length > 1,
+          _stepsForMode(
+                nextInputMode,
+                loadedManualSteps,
+                loadedMimicSteps,
+              ).length >
+              1,
       manualClickPoints: loadedManualPoints,
       manualClickSteps: loadedManualSteps,
       mimicClickPoints: loadedMimicPoints,
@@ -213,6 +232,7 @@ class ClickerController extends Notifier<ClickerState> {
       pattern: state.selectedPattern,
       multiClick: state.isMultiClickEnabled,
       pointTimingMode: state.pointTimingMode,
+      inputMode: state.activeInputMode,
       clickMode: state.clickMode,
       targetCycles: state.targetCycles,
       showGestureIndicator: state.showGestureIndicator,
@@ -398,9 +418,7 @@ class ClickerController extends Notifier<ClickerState> {
     }
 
     await loadPresets();
-    state = state.copyWith(
-      statusMessage: 'Presets imported successfully.',
-    );
+    state = state.copyWith(statusMessage: 'Presets imported successfully.');
   }
 
   Future<void> clearPresets() async {
@@ -437,7 +455,8 @@ class ClickerController extends Notifier<ClickerState> {
       notificationsEnabled: status.notificationsEnabled,
       isRunning: status.isRunning,
       totalClicks: status.totalClicks,
-      statusMessage: 'Local app data reset. Permissions stay under Android settings.',
+      statusMessage:
+          'Local app data reset. Permissions stay under Android settings.',
     );
     await _syncConfig();
   }
@@ -466,7 +485,9 @@ class ClickerController extends Notifier<ClickerState> {
                 : step,
           )
           .toList(),
-      safetyWarning: _nonBlockingSafetyWarning(intervalOverride: normalizedInterval),
+      safetyWarning: _nonBlockingSafetyWarning(
+        intervalOverride: normalizedInterval,
+      ),
     );
     _queueConfigSync();
   }
@@ -527,7 +548,9 @@ class ClickerController extends Notifier<ClickerState> {
   void toggleMultiClick(bool enabled) {
     state = state.copyWith(
       isMultiClickEnabled: enabled,
-      pointTimingMode: enabled ? state.pointTimingMode : ClickPointTimingMode.sequential,
+      pointTimingMode: enabled
+          ? state.pointTimingMode
+          : ClickPointTimingMode.sequential,
       safetyWarning: _nonBlockingSafetyWarning(),
     );
     _queueConfigSync();
@@ -858,6 +881,7 @@ class ClickerController extends Notifier<ClickerState> {
     state = state.copyWith(
       accessibilityEnabled: status.accessibilityEnabled,
       overlayPermissionEnabled: status.overlayPermissionEnabled,
+      overlayEnabled: status.overlayEnabled,
       overlayVisible: status.overlayVisible,
       pointPickerActive: status.pointPickerActive,
       accessibilityServiceConnected: status.accessibilityServiceConnected,
@@ -884,6 +908,7 @@ class ClickerController extends Notifier<ClickerState> {
       pattern: state.selectedPattern,
       multiClick: state.isMultiClickEnabled,
       pointTimingMode: state.pointTimingMode,
+      inputMode: state.activeInputMode,
       clickMode: state.clickMode,
       targetCycles: state.targetCycles,
       showGestureIndicator: state.showGestureIndicator,
@@ -899,7 +924,8 @@ class ClickerController extends Notifier<ClickerState> {
     bool? isMultiClickEnabled,
     ClickPointTimingMode? pointTimingMode,
   }) {
-    final nextMultiClickEnabled = isMultiClickEnabled ?? state.isMultiClickEnabled;
+    final nextMultiClickEnabled =
+        isMultiClickEnabled ?? state.isMultiClickEnabled;
     state = state.copyWith(
       manualClickPoints: state.activeInputMode == ClickInputMode.manual
           ? points

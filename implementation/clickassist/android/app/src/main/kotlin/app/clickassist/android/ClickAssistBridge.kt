@@ -34,11 +34,18 @@ data class AutoClickConfig(
     val pattern: String,
     val multiClick: Boolean,
     val pointTimingMode: String,
+    val inputMode: String,
     val infiniteMode: Boolean,
     val targetCycles: Int,
     val showGestureIndicator: Boolean,
     val clickPoints: List<NativeClickPoint>,
     val clickSteps: List<NativeClickStep>,
+)
+
+data class OverlayControlSummary(
+    val modeLabel: String,
+    val speedLabel: String,
+    val pickerLabel: String,
 )
 
 data class ClickAssistStatus(
@@ -340,11 +347,15 @@ object ClickAssistBridge {
         lastStatus = lastStatus.copy(
             accessibilityEnabled = isAccessibilityEnabled(context),
             overlayPermissionEnabled = Settings.canDrawOverlays(context),
+            overlayEnabled = overlayEnabled,
             overlayVisible = overlayVisible,
             pointPickerActive = false,
+            accessibilityServiceConnected = service != null,
+            batteryOptimizationIgnored = isIgnoringBatteryOptimizations(context),
             batteryLevelPercent = batteryLevelPercent(context),
             batteryCharging = isBatteryCharging(context),
             thermalStatus = thermalStatus(context),
+            notificationsEnabled = NotificationManagerCompat.from(context).areNotificationsEnabled(),
             isRunning = lastStatus.isRunning,
             totalClicks = lastStatus.totalClicks,
             captureSequence = lastStatus.captureSequence + 1,
@@ -360,10 +371,48 @@ object ClickAssistBridge {
 
     fun isRunning(): Boolean = lastStatus.isRunning
 
+    fun isPointPickerActive(): Boolean = pointPickerActive
+
+    fun overlaySummary(): OverlayControlSummary {
+        val config = lastConfig
+        if (config == null) {
+            return OverlayControlSummary(
+                modeLabel = "Configure first",
+                speedLabel = "No speed set",
+                pickerLabel = pickerLabel(),
+            )
+        }
+
+        val sourceLabel = when (config.inputMode) {
+            "mimic" -> "Mimic mode"
+            else -> "Click points"
+        }
+        val actionLabel = when {
+            config.clickSteps.any { it.actionType == "swipe" } -> "Tap + swipe"
+            config.multiClick -> "Multi-point"
+            else -> "Single target"
+        }
+        val timingLabel = when (config.pointTimingMode) {
+            "simultaneous" -> "Simultaneous"
+            else -> "Sequential"
+        }
+        val repeatLabel = if (config.infiniteMode) "Infinite" else "${config.targetCycles} cycles"
+
+        return OverlayControlSummary(
+            modeLabel = "$sourceLabel • $actionLabel",
+            speedLabel = "${config.intervalMs} ms • $timingLabel • $repeatLabel",
+            pickerLabel = pickerLabel(),
+        )
+    }
+
     fun shouldRestoreOverlay(context: Context): Boolean {
         return readOverlayEnabled(context) &&
             isAccessibilityEnabled(context) &&
             Settings.canDrawOverlays(context)
+    }
+
+    private fun pickerLabel(): String {
+        return if (pointPickerActive) "Point picker active" else "Picker idle"
     }
 
     private fun isAccessibilityEnabled(context: Context): Boolean {
@@ -423,8 +472,7 @@ object ClickAssistBridge {
         val shouldBeVisible =
             overlayEnabled &&
                 isAccessibilityEnabled(context) &&
-                canDrawOverlays &&
-                !appInForeground
+                canDrawOverlays
         if (shouldBeVisible && !overlayVisible) {
             context.startForegroundService(Intent(context, FloatingOverlayService::class.java))
             overlayVisible = true

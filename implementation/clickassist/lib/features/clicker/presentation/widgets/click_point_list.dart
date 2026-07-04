@@ -70,8 +70,10 @@ class ClickPointList extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         if (pointPickerActive) ...[
+          Text('Picker active on screen.', style: AppTextStyles.titleMedium),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            'Picker active: move the marker in any app, then press Confirm to save the exact target.',
+            'Use the overlay controls to confirm or cancel.',
             style: AppTextStyles.bodySmall,
           ),
           const SizedBox(height: AppSpacing.lg),

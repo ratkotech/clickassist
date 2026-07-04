@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="4096"
+  height="4881"
+  viewBox="0 0 485 578"
+  role="img"
+  aria-labelledby="title description"
+>
+  <title id="title">ClickAssist logo</title>
+  <desc id="description">Cyan circular play mark above ClickAssist and the tagline Precision tap automation.</desc>
+
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="0" y2="578" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#091226" />
+      <stop offset="1" stop-color="#050B1D" />
+    </linearGradient>
+    <linearGradient id="mark" x1="147.5" y1="136" x2="333.5" y2="322" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1ECFFF" />
+      <stop offset="1" stop-color="#12A7FF" />
+    </linearGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="22" />
+    </filter>
+  </defs>
+
+  <rect width="485" height="578" fill="url(#background)" />
+  <circle cx="240.5" cy="229" r="93" fill="#12C8FF" opacity="0.28" filter="url(#glow)" />
+  <circle cx="240.5" cy="229" r="93" fill="url(#mark)" />
+  <circle cx="240.5" cy="229" r="67.5" fill="#091226" />
+  <path
+    d="M230 214.5C230 212.2 232.5 210.9 234.4 212.2L257 227.4C259.4 229 259.4 231 257 232.6L234.4 247.8C232.5 249.1 230 247.8 230 245.5Z"
+    fill="#1ECFFF"
+  />
+  <text
+    x="240.5"
+    y="410"
+    fill="#1ECFFF"
+    font-family="Roboto, Arial, sans-serif"
+    font-size="49"
+    font-weight="900"
+    letter-spacing="-0.9"
+    text-anchor="middle"
+  >ClickAssist</text>
+  <text
+    x="240.5"
+    y="470"
+    fill="#93A4C8"
+    font-family="Roboto, Arial, sans-serif"
+    font-size="24"
+    font-weight="500"
+    text-anchor="middle"
+  >Precision tap automation</text>
+</svg>

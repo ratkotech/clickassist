@@ -226,6 +226,14 @@ class ClickerController extends Notifier<ClickerState> {
     }
 
     await _syncConfig();
+    if (!state.overlayEnabled || !state.overlayVisible) {
+      final overlayStatus = await _platformService.startOverlay();
+      _applyStatus(overlayStatus);
+      if (!ref.mounted || !state.overlayVisible) {
+        return;
+      }
+    }
+
     final status = await _platformService.startClicking(
       intervalMs: state.intervalMs,
       startDelayMs: state.startDelayEnabled ? state.startDelayMs : 0,
@@ -1053,6 +1061,9 @@ class ClickerController extends Notifier<ClickerState> {
   String? _blockingSafetyIssue() {
     if (!state.accessibilityEnabled) {
       return 'Enable ClickAssist in Accessibility settings before starting.';
+    }
+    if (!state.overlayPermissionEnabled) {
+      return 'Allow display over other apps before starting so pause, stop, and close controls stay visible.';
     }
     if (state.pointPickerActive) {
       return 'Finish or cancel the point picker before starting.';

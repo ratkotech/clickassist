@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
@@ -20,6 +21,7 @@ class GestureIndicatorOverlay(
     private val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
 
     fun showTap(point: NativeClickPoint) {
+        Log.d(TAG, "target indicator created for tap at ${point.x.toInt()},${point.y.toInt()}")
         val view = TapIndicatorView(context)
         val size = 124
         val params = WindowManager.LayoutParams(
@@ -46,6 +48,10 @@ class GestureIndicatorOverlay(
     }
 
     fun showSwipe(start: NativeClickPoint, end: NativeClickPoint) {
+        Log.d(
+            TAG,
+            "target indicator created for swipe from ${start.x.toInt()},${start.y.toInt()} to ${end.x.toInt()},${end.y.toInt()}",
+        )
         val left = minOf(start.x, end.x)
         val top = minOf(start.y, end.y)
         val width = max(120f, kotlin.math.abs(end.x - start.x) + 120f)
@@ -86,18 +92,30 @@ class GestureIndicatorOverlay(
         runCatching {
             view.alpha = 1f
             windowManager.addView(view, params)
+            Log.d(
+                TAG,
+                "target indicator addView success; type=${params.type}; flags=${params.flags}; x=${params.x}; y=${params.y}; width=${params.width}; height=${params.height}",
+            )
             animate(view)
             view.animate().setListener(
                 object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
+                        Log.d(TAG, "target indicator removeView after animation")
                         runCatching { windowManager.removeView(view) }
                     }
                 },
             )
             view.postDelayed({
+                Log.d(TAG, "target indicator removeView after timeout")
                 runCatching { windowManager.removeView(view) }
             }, durationMs + 100L)
+        }.onFailure { error ->
+            Log.e(TAG, "target indicator addView failed", error)
         }
+    }
+
+    companion object {
+        private const val TAG = "ClickAssistOverlay"
     }
 }
 

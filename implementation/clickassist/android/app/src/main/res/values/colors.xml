@@ -3,4 +3,5 @@
     <color name="clickassist_launch_background">#050B1D</color>
     <color name="clickassist_launch_panel">#091226</color>
     <color name="clickassist_primary">#1ECFFF</color>
+	<color name="ic_launcher_background">#071225</color>
 </resources>

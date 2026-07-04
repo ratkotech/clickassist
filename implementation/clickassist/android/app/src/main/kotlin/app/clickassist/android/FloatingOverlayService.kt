@@ -1,5 +1,7 @@
 ﻿package app.clickassist.android
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.app.Notification
 import android.app.NotificationChannel
@@ -15,6 +17,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -63,28 +66,32 @@ class FloatingOverlayService : Service() {
     private var dismissParams: WindowManager.LayoutParams? = null
     private var pulseAnimator: ValueAnimator? = null
 
-    private var compactButton: LinearLayout? = null
+    private var compactButton: View? = null
     private var compactIcon: ImageView? = null
-    private var compactStatus: TextView? = null
     private var expandedBar: LinearLayout? = null
-    private var playButton: ImageView? = null
+    private var toggleIcon: ImageView? = null
     private var stopButton: ImageView? = null
     private var settingsButton: ImageView? = null
     private var statusLabel: TextView? = null
     private var modeLabel: TextView? = null
     private var speedLabel: TextView? = null
     private var pickerLabel: TextView? = null
-    private var playButtonContainer: View? = null
+    private var toggleButtonContainer: View? = null
     private var stopButtonContainer: View? = null
     private var settingsButtonContainer: View? = null
 
     private var isExpanded = false
+    private var currentOverlayBounds: OverlayProtection.Bounds? = null
+    private var lastUserSelectedOverlayPosition: OverlayProtection.Position? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onCreate() {
         super.onCreate()
+        activeService = this
+        Log.d(TAG, "service created; canDrawOverlays=${Settings.canDrawOverlays(this)}")
         if (!Settings.canDrawOverlays(this)) {
+            Log.d(TAG, "stopping overlay service because draw-over-apps permission is missing")
             stopSelf()
             return
         }
@@ -108,6 +115,7 @@ class FloatingOverlayService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "start command received; overlayView=${overlayView != null}; visible=${overlayView?.visibility}")
         updateOverlayAppearance()
         return START_STICKY
     }
@@ -118,10 +126,14 @@ class FloatingOverlayService : Service() {
         removeDismissLayer()
         removeOverlay()
         ClickAssistBridge.setOverlayVisible(this, false)
+        if (activeService === this) {
+            activeService = null
+        }
         super.onDestroy()
     }
 
     private fun showOverlay() {
+        Log.d(TAG, "creating control overlay")
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val inflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view = inflater.inflate(R.layout.overlay_controls, null)
@@ -142,37 +154,63 @@ class FloatingOverlayService : Service() {
         overlayParams = params
         bindOverlayViews(view)
         bindOverlayActions()
-        windowManager?.addView(view, params)
+        runCatching {
+            windowManager?.addView(view, params)
+            Log.d(
+                TAG,
+                "control overlay addView success; type=${params.type}; flags=${params.flags}; x=${params.x}; y=${params.y}; width=${params.width}; height=${params.height}",
+            )
+        }.onFailure { error ->
+            Log.e(TAG, "control overlay addView failed", error)
+            stopSelf()
+            return
+        }
         overlayView = view
         setExpanded(false, animate = false)
         updateOverlayAppearance()
+        view.post {
+            Log.d(
+                TAG,
+                "control overlay laid out; visibility=${view.visibility}; alpha=${view.alpha}; width=${view.width}; height=${view.height}; x=${params.x}; y=${params.y}",
+            )
+            updateCurrentOverlayBounds()
+        }
     }
 
     private fun bindOverlayViews(view: View) {
         compactButton = view.findViewById(R.id.overlayCompactButton)
         compactIcon = view.findViewById(R.id.overlayCompactIcon)
-        compactStatus = view.findViewById(R.id.overlayCompactStatus)
         expandedBar = view.findViewById(R.id.overlayExpandedBar)
-        playButton = view.findViewById(R.id.overlayPlayButton)
+        toggleIcon = view.findViewById(R.id.overlayToggleIcon)
         stopButton = view.findViewById(R.id.overlayStopButton)
         settingsButton = view.findViewById(R.id.overlaySettingsButton)
         statusLabel = view.findViewById(R.id.overlayStatusLabel)
         modeLabel = view.findViewById(R.id.overlayModeLabel)
         speedLabel = view.findViewById(R.id.overlaySpeedLabel)
         pickerLabel = view.findViewById(R.id.overlayPickerLabel)
-        playButtonContainer = view.findViewById(R.id.overlayPlayButtonContainer)
+        toggleButtonContainer = view.findViewById(R.id.overlayToggleButtonContainer)
         stopButtonContainer = view.findViewById(R.id.overlayStopButtonContainer)
         settingsButtonContainer = view.findViewById(R.id.overlaySettingsButtonContainer)
+        Log.d(
+            TAG,
+            "control overlay views bound; compact=${compactButton != null}; expanded=${expandedBar != null}; toggle=${toggleButtonContainer != null}; stop=${stopButtonContainer != null}; settings=${settingsButtonContainer != null}",
+        )
     }
 
     private fun bindOverlayActions() {
         compactButton?.setOnClickListener {
+            if (ClickAssistBridge.isRunning()) {
+                ClickAssistBridge.stop(this)
+                updateOverlayAppearance()
+                setExpanded(false, animate = true)
+                return@setOnClickListener
+            }
             if (!isExpanded) {
                 setExpanded(true, animate = true)
             }
         }
 
-        playButtonContainer?.setOnClickListener {
+        toggleButtonContainer?.setOnClickListener {
             if (ClickAssistBridge.isRunning()) {
                 ClickAssistBridge.stop(this)
             } else {
@@ -234,6 +272,7 @@ class FloatingOverlayService : Service() {
                             params.x = (initialX + deltaX).coerceIn(0, maxOverlayX())
                             params.y = (initialY + deltaY).coerceIn(dp(32), maxOverlayY())
                             windowManager?.updateViewLayout(overlayView, params)
+                            updateCurrentOverlayBounds()
                             return true
                         }
 
@@ -241,7 +280,7 @@ class FloatingOverlayService : Service() {
                         MotionEvent.ACTION_CANCEL,
                         -> {
                             if (dragging) {
-                                snapToNearestEdge()
+                                snapToNearestEdge(userInitiated = true)
                                 return true
                             }
                         }
@@ -256,10 +295,12 @@ class FloatingOverlayService : Service() {
         val compact = compactButton ?: return
         val bar = expandedBar ?: return
         isExpanded = expanded
+        Log.d(TAG, "setExpanded expanded=$expanded animate=$animate")
 
         if (expanded) {
             showDismissLayer()
             bar.visibility = View.VISIBLE
+            bar.post { updateCurrentOverlayBounds() }
             if (animate) {
                 bar.alpha = 0f
                 bar.scaleX = 0.92f
@@ -282,6 +323,7 @@ class FloatingOverlayService : Service() {
         } else {
             removeDismissLayer()
             compact.visibility = View.VISIBLE
+            compact.post { updateCurrentOverlayBounds() }
             compact.animate()
                 .alpha(1f)
                 .scaleX(1f)
@@ -340,6 +382,7 @@ class FloatingOverlayService : Service() {
 
     private fun removeDismissLayer() {
         dismissView?.let { view ->
+            Log.d(TAG, "removeView dismiss layer")
             runCatching { windowManager?.removeView(view) }
         }
         dismissView = null
@@ -362,11 +405,6 @@ class FloatingOverlayService : Service() {
         }
 
         compactButton?.contentDescription = "ClickAssist overlay: $statusText. Tap for controls."
-        compactStatus?.text = when {
-            pointPickerActive -> "PICK"
-            running -> "RUN"
-            else -> "READY"
-        }
         statusLabel?.apply {
             text = statusText
             setTextColor(statusColor)
@@ -378,21 +416,12 @@ class FloatingOverlayService : Service() {
             setTextColor(if (pointPickerActive) COLOR_WARNING else COLOR_MUTED)
         }
 
-        compactIcon?.setImageResource(
-            when {
-                pointPickerActive -> android.R.drawable.ic_menu_mylocation
-                running -> android.R.drawable.ic_media_pause
-                else -> android.R.drawable.ic_media_play
-            },
-        )
-        playButton?.setImageResource(
-            if (running) android.R.drawable.ic_media_pause
-            else android.R.drawable.ic_media_play,
-        )
+        compactIcon?.setImageResource(R.drawable.clickassist_overlay_logo)
+        toggleIcon?.setImageResource(if (running) R.drawable.ic_overlay_pause else R.drawable.ic_overlay_play)
         stopButton?.setImageResource(android.R.drawable.ic_menu_close_clear_cancel)
         val playDescription = if (running) "Pause automation" else "Start automation"
-        playButton?.contentDescription = playDescription
-        playButtonContainer?.contentDescription = playDescription
+        toggleIcon?.contentDescription = playDescription
+        toggleButtonContainer?.contentDescription = playDescription
         stopButton?.contentDescription = "Stop automation"
         stopButtonContainer?.contentDescription = "Stop automation"
         settingsButton?.contentDescription = "Open ClickAssist"
@@ -410,7 +439,7 @@ class FloatingOverlayService : Service() {
 
     private fun startPulseAnimation() {
         val compact = compactButton ?: return
-        val play = playButtonContainer ?: return
+        val play = toggleButtonContainer ?: return
         if (pulseAnimator?.isRunning == true) {
             return
         }
@@ -441,14 +470,14 @@ class FloatingOverlayService : Service() {
             scaleX = 1f
             scaleY = 1f
         }
-        playButtonContainer?.apply {
+        toggleButtonContainer?.apply {
             alpha = 1f
             scaleX = 1f
             scaleY = 1f
         }
     }
 
-    private fun snapToNearestEdge() {
+    private fun snapToNearestEdge(userInitiated: Boolean) {
         val params = overlayParams ?: return
         val startX = params.x
         val targetX = if (startX + currentOverlayWidth() / 2 < screenWidth() / 2) dp(16) else maxOverlayX()
@@ -458,9 +487,99 @@ class FloatingOverlayService : Service() {
             addUpdateListener { animator ->
                 params.x = animator.animatedValue as Int
                 windowManager?.updateViewLayout(overlayView, params)
+                updateCurrentOverlayBounds()
             }
+            addListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        updateCurrentOverlayBounds()
+                        if (userInitiated) {
+                            lastUserSelectedOverlayPosition =
+                                OverlayProtection.Position(params.x, params.y)
+                        }
+                    }
+                },
+            )
             start()
         }
+    }
+
+    private fun prepareForClickTarget(x: Float, y: Float): Boolean {
+        val params = overlayParams ?: run {
+            Log.d(TAG, "prepareForClickTarget allowed; overlay params unavailable for ${x.toInt()},${y.toInt()}")
+            return true
+        }
+        val overlay = overlayView ?: run {
+            Log.d(TAG, "prepareForClickTarget allowed; overlay view unavailable for ${x.toInt()},${y.toInt()}")
+            return true
+        }
+        val bounds = currentOverlayBounds ?: updateCurrentOverlayBounds()
+        val safeMargin = dp(12)
+        Log.d(TAG, "prepareForClickTarget target=${x.toInt()},${y.toInt()}; bounds=$bounds; safeMargin=$safeMargin")
+
+        if (bounds == null ||
+            !OverlayProtection.intersectsProtectedZone(
+                bounds = bounds,
+                x = x,
+                y = y,
+                safeMarginPx = safeMargin,
+            )
+        ) {
+            return true
+        }
+
+        val relocation =
+            OverlayProtection.chooseRelocation(
+                targetX = x,
+                targetY = y,
+                overlaySize = OverlayProtection.Size(currentOverlayWidth(), currentOverlayHeight()),
+                screenSize = OverlayProtection.Size(screenWidth(), screenHeight()),
+                safeMarginPx = safeMargin,
+                edgePaddingPx = dp(16),
+                minTopPx = dp(32),
+                lastUserPosition = lastUserSelectedOverlayPosition,
+            )
+
+        params.x = relocation.x
+        params.y = relocation.y
+        Log.d(
+            TAG,
+            "relocating overlay for protected target=${x.toInt()},${y.toInt()}; oldBounds=$bounds; newX=${params.x}; newY=${params.y}",
+        )
+        windowManager?.updateViewLayout(overlay, params)
+        val updatedBounds = updateCurrentOverlayBounds()
+        statusLabel?.text = "Overlay moved"
+        Log.d(TAG, "Overlay moved to avoid protected auto-click target at ${x.toInt()},${y.toInt()}.")
+
+        val safeAfterMove =
+            updatedBounds != null &&
+                !OverlayProtection.intersectsProtectedZone(
+                    bounds = updatedBounds,
+                    x = x,
+                    y = y,
+                    safeMarginPx = safeMargin,
+                )
+        if (!safeAfterMove) {
+            Log.d(
+                TAG,
+                "Auto-click target skipped because overlay safe zone still overlaps ${x.toInt()},${y.toInt()}.",
+            )
+        }
+        return safeAfterMove
+    }
+
+    private fun updateCurrentOverlayBounds(): OverlayProtection.Bounds? {
+        val params = overlayParams ?: return null
+        val bounds =
+            OverlayProtection.Bounds(
+                left = params.x,
+                top = params.y,
+                right = params.x + currentOverlayWidth(),
+                bottom = params.y + currentOverlayHeight(),
+            )
+        currentOverlayBounds = bounds
+        Log.d(TAG, "control overlay bounds updated: $bounds")
+        return bounds
     }
 
     private fun currentOverlayWidth(): Int {
@@ -501,10 +620,12 @@ class FloatingOverlayService : Service() {
 
     private fun removeOverlay() {
         overlayView?.let { view ->
+            Log.d(TAG, "removeView control overlay")
             runCatching { windowManager?.removeView(view) }
         }
         overlayView = null
         overlayParams = null
+        currentOverlayBounds = null
     }
 
     private fun createNotification(): Notification {
@@ -575,16 +696,28 @@ class FloatingOverlayService : Service() {
     }
 
     companion object {
+        @Volatile
+        private var activeService: FloatingOverlayService? = null
+
         private val COLOR_PRIMARY = 0xFF12C8FF.toInt()
         private val COLOR_SUCCESS = 0xFF2EE59D.toInt()
         private val COLOR_WARNING = 0xFFFFC857.toInt()
         private val COLOR_MUTED = 0xFF93A4C8.toInt()
+        private const val TAG = "ClickAssistOverlay"
         private const val CHANNEL_ID = "clickassist_overlay"
         private const val NOTIFICATION_ID = 4401
         const val ACTION_TOGGLE_CLICKING = "clickassist.action.TOGGLE_CLICKING"
         const val ACTION_OPEN_APP = "clickassist.action.OPEN_APP"
         const val ACTION_STOP_OVERLAY = "clickassist.action.STOP_OVERLAY"
         const val ACTION_REFRESH_OVERLAY = "clickassist.action.REFRESH_OVERLAY"
+
+        fun prepareForClickTarget(x: Float, y: Float): Boolean {
+            return activeService?.prepareForClickTarget(x, y) ?: true
+        }
+
+        fun avoidClickTarget(x: Float, y: Float): Boolean {
+            return prepareForClickTarget(x, y)
+        }
 
         fun openOverlaySettings(context: Context) {
             val intent =
@@ -597,5 +730,6 @@ class FloatingOverlayService : Service() {
             context.startActivity(intent)
         }
     }
+
 }
 

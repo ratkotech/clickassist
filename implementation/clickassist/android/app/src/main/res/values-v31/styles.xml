@@ -2,7 +2,7 @@
 <resources>
     <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowSplashScreenBackground">@color/clickassist_launch_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_transparent</item>
         <item name="android:windowSplashScreenIconBackgroundColor">@color/clickassist_launch_background</item>
         <item name="android:windowSplashScreenAnimationDuration">200</item>
         <item name="android:windowLightStatusBar">false</item>

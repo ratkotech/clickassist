@@ -1,26 +1,22 @@
 ﻿# ClickAssist
 
 <p align="center">
-  <img src="design/logo.png" alt="ClickAssist - Precision tap automation" width="320">
+  <img src="design/clickassist-app-icon.png" alt="ClickAssist logo" width="180">
 </p>
 
 **User-controlled tap and swipe automation for Android.**
+
+Current version: 1.0.1
 
 ClickAssist is an open-source Flutter + Kotlin app for building repeatable tap and swipe routines on Android. It is designed around transparency, manual setup, visible controls, and local-only configuration so users understand exactly what is being automated.
 
 > ClickAssist is a user-controlled automation tool. Use it only in apps, games, and workflows where automation is allowed.
 
-## Demo
-
-<video src="design/Video.webm" autoplay muted loop playsinline controls width="320"></video>
-
-[Watch the demo video](design/Video.webm)
-
 ## Screenshots
 
-<p align="center">
-  <img src="design/Display.png" alt="ClickAssist automation dashboard" width="320">
-</p>
+![ClickAssist 1.0.1 app preview](release-artifacts/1.0.1/previews/clickassist-1.0.1-preview-sheet.png)
+
+The current preview shows the onboarding, setup guide, configuration, and click-points/presets screens from the 1.0.1 build. Individual screenshots are available in [docs/screenshots](docs/screenshots/README.md).
 
 ## What It Does
 
@@ -43,6 +39,8 @@ ClickAssist helps users automate repetitive on-screen interactions they configur
 - Start delay presets and custom delay.
 - Presets with custom names, import/export, edit, delete, and quick load.
 - Floating overlay controls for use outside the app.
+- Overlay safe-zone protection so generated taps avoid the floating controls.
+- Improved target picker flow for selecting real on-screen positions.
 - Setup health checks for accessibility, overlay, notifications, battery optimization, battery level, device temperature, and run intensity.
 - Help & Safety, privacy summary, responsible-use text, and permission disclosures.
 
@@ -129,12 +127,11 @@ Read the full [Privacy Policy](privacy-policy.md) and [Responsible Use](responsi
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [Features](docs/features.md)
-- [Accessibility Service](docs/accessibility.md)
-- [Overlay System](docs/overlay-system.md)
-- [Presets System](docs/presets-system.md)
+- [Project Analysis](docs/analysis/README.md)
+- [Changelog](CHANGELOG.md)
+- [Screenshots](docs/screenshots/README.md)
 - [Play Store Review Checklist](docs/play-store-review-checklist.md)
+- [Outdated Documentation Archive](docs/outdated/README.md)
 
 ## Project Structure
 

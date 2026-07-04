@@ -17,8 +17,7 @@ class BrandLogo extends StatelessWidget {
     : _variant = _BrandLogoVariant.mark,
       maxWidth = null;
 
-  static const _lockupAsset = 'assets/branding/logo_transparent.png';
-  static const _markAsset = 'assets/branding/app_icon.png';
+  static const _logoAsset = 'assets/branding/clickassist-app-icon.png';
 
   final _BrandLogoVariant _variant;
   final double? maxWidth;
@@ -33,7 +32,7 @@ class BrandLogo extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: maxWidth!),
           child: Image.asset(
-            _lockupAsset,
+            _logoAsset,
             key: const Key('brand-logo-full'),
             fit: BoxFit.contain,
             excludeFromSemantics: true,
@@ -74,7 +73,7 @@ class BrandLogo extends StatelessWidget {
         ),
       ),
       _BrandLogoVariant.mark => Image.asset(
-        _markAsset,
+        _logoAsset,
         key: const Key('brand-logo-mark'),
         width: size,
         height: size,

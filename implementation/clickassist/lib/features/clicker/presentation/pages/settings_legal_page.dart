@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../app/routes/app_router.dart';
+import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/app_text_styles.dart';
 import '../../../../core/config/app_support_config.dart';
@@ -26,7 +27,9 @@ class SettingsLegalPage extends ConsumerWidget {
       if (!context.mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     }
 
     Future<void> sendSupportEmail({
@@ -53,18 +56,20 @@ class SettingsLegalPage extends ConsumerWidget {
       TargetPlatform.fuchsia => 'Fuchsia',
     };
 
-    final feedbackBody = '''
+    final feedbackBody =
+        '''
 Hi,
 
 I would like to share the following feedback:
 
 ---
 
-App version: ${AppSupportConfig.appVersion}
+App version: ${AppSupportConfig.appFullVersion}
 Device: $deviceLabel
 ''';
 
-    final bugBody = '''
+    final bugBody =
+        '''
 Hi,
 
 I encountered a bug:
@@ -79,7 +84,7 @@ Actual behavior:
 
 ---
 
-App version: ${AppSupportConfig.appVersion}
+App version: ${AppSupportConfig.appFullVersion}
 Device: $deviceLabel
 ''';
 
@@ -186,8 +191,7 @@ Device: $deviceLabel
                   await sendSupportEmail(
                     subject: '${AppSupportConfig.appName} Feedback',
                     body: feedbackBody,
-                    failureMessage:
-                        'No email app was found on this device.',
+                    failureMessage: 'No email app was found on this device.',
                   );
                 },
               ),
@@ -202,8 +206,7 @@ Device: $deviceLabel
                   await sendSupportEmail(
                     subject: '${AppSupportConfig.appName} Bug Report',
                     body: bugBody,
-                    failureMessage:
-                        'No email app was found on this device.',
+                    failureMessage: 'No email app was found on this device.',
                   );
                 },
               ),
@@ -289,46 +292,110 @@ Device: $deviceLabel
         ),
         const SizedBox(height: AppSpacing.sectionGap),
         ClickerSectionCard(
-          title: 'App Info',
+          title: 'About ClickAssist',
           icon: Icons.info_outline_rounded,
+          child: const _AppInfoContent(),
+        ),
+      ],
+    );
+  }
+}
+
+class _AppInfoContent extends StatelessWidget {
+  const _AppInfoContent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Center(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              const Center(child: BrandLogo.full(maxWidth: 180)),
-              const SizedBox(height: AppSpacing.xl),
+              const BrandLogo.mark(size: 92),
+              const SizedBox(height: AppSpacing.md),
               Text(
-                'Version ${AppSupportConfig.appVersion}',
-                style: AppTextStyles.titleMedium,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Support: ${AppSupportConfig.supportEmail}',
-                style: AppTextStyles.bodyMedium,
+                AppSupportConfig.appName,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.titleLarge.copyWith(
+                  color: AppColors.primaryBright,
+                ),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Privacy: ${AppSupportConfig.privacyPolicyUrl}',
-                style: AppTextStyles.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Responsible use: ${AppSupportConfig.termsUrl}',
-                style: AppTextStyles.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                AppSupportConfig.openSourceNotice,
-                style: AppTextStyles.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Repository: ${AppSupportConfig.repositoryUrl}',
-                style: AppTextStyles.bodySmall,
+                AppSupportConfig.aboutDescription,
+                textAlign: TextAlign.center,
+                style: AppTextStyles.bodySmallReadable,
               ),
             ],
           ),
         ),
+        const SizedBox(height: AppSpacing.xl),
+        Text(
+          'Version ${AppSupportConfig.appVersion}',
+          style: AppTextStyles.titleMedium,
+        ),
+        const SizedBox(height: AppSpacing.md),
+        const _AppInfoRow(
+          label: 'Status',
+          value: AppSupportConfig.projectStatus,
+        ),
+        const _AppInfoRow(
+          label: 'Developer',
+          value: AppSupportConfig.developerName,
+        ),
+        const _AppInfoRow(
+          label: 'Support',
+          value: AppSupportConfig.supportEmail,
+        ),
+        const _AppInfoRow(
+          label: 'Privacy',
+          value: AppSupportConfig.privacyPolicyUrl,
+        ),
+        const _AppInfoRow(
+          label: 'Responsible use',
+          value: AppSupportConfig.termsUrl,
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          AppSupportConfig.openSourceNotice,
+          style: AppTextStyles.bodySmallReadable,
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        const _AppInfoRow(
+          label: 'Repository',
+          value: AppSupportConfig.repositoryUrl,
+          bottomSpacing: 0,
+        ),
       ],
+    );
+  }
+}
+
+class _AppInfoRow extends StatelessWidget {
+  const _AppInfoRow({
+    required this.label,
+    required this.value,
+    this.bottomSpacing = AppSpacing.sm,
+  });
+
+  final String label;
+  final String value;
+  final double bottomSpacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomSpacing),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label.toUpperCase(), style: AppTextStyles.labelUppercase),
+          const SizedBox(height: AppSpacing.xs),
+          SelectableText(value, style: AppTextStyles.bodySmallReadable),
+        ],
+      ),
     );
   }
 }

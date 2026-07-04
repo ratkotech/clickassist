@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.ImageView
 import android.widget.TextView
 
 class PointPickerOverlayService : Service() {
@@ -19,6 +18,7 @@ class PointPickerOverlayService : Service() {
     private var overlayView: View? = null
     private var markerView: View? = null
     private var coordinateLabel: TextView? = null
+    private var markerCoordinateLabel: TextView? = null
     private var selectedX = 0f
     private var selectedY = 0f
 
@@ -63,20 +63,19 @@ class PointPickerOverlayService : Service() {
     }
 
     private fun bindOverlayActions(view: View) {
-        val hint = view.findViewById<TextView>(R.id.pointPickerHint)
-        val closeButton = view.findViewById<ImageView>(R.id.pointPickerCloseButton)
+        val cancelButton = view.findViewById<TextView>(R.id.pointPickerCancelButton)
         val confirmButton = view.findViewById<TextView>(R.id.pointPickerConfirmButton)
         val captureSurface = view.findViewById<View>(R.id.pointPickerSurface)
         markerView = view.findViewById(R.id.pointPickerMarker)
         coordinateLabel = view.findViewById(R.id.pointPickerCoordinates)
+        markerCoordinateLabel = view.findViewById(R.id.pointPickerMarkerCoordinates)
 
-        hint.text = "Place the target marker, then press Confirm"
         updateSelection(
             resources.displayMetrics.widthPixels / 2f,
             resources.displayMetrics.heightPixels / 2f,
         )
 
-        closeButton.setOnClickListener {
+        cancelButton.setOnClickListener {
             ClickAssistBridge.updateStatus(
                 context = this,
                 message = "Point picker cancelled.",
@@ -95,7 +94,7 @@ class PointPickerOverlayService : Service() {
             stopSelf()
         }
 
-        captureSurface.setOnTouchListener { _, event ->
+        val updateFromTouch = View.OnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN,
                 MotionEvent.ACTION_MOVE,
@@ -108,14 +107,26 @@ class PointPickerOverlayService : Service() {
                 else -> true
             }
         }
+        captureSurface.setOnTouchListener(updateFromTouch)
+        markerView?.setOnTouchListener(updateFromTouch)
     }
 
     private fun updateSelection(rawX: Float, rawY: Float) {
-        selectedX = rawX
-        selectedY = rawY
-        markerView?.translationX = rawX - ((markerView?.width ?: 0) / 2f)
-        markerView?.translationY = rawY - ((markerView?.height ?: 0) / 2f)
-        coordinateLabel?.text = "X ${rawX.toInt()}  |  Y ${rawY.toInt()}"
+        val markerWidth = markerView?.width?.takeIf { it > 0 } ?: dp(112)
+        val markerHeight = markerView?.height?.takeIf { it > 0 } ?: dp(112)
+        val halfWidth = markerWidth / 2f
+        val halfHeight = markerHeight / 2f
+        val screenWidth = resources.displayMetrics.widthPixels.toFloat()
+        val screenHeight = resources.displayMetrics.heightPixels.toFloat()
+        val clampedX = rawX.coerceIn(halfWidth, screenWidth - halfWidth)
+        val clampedY = rawY.coerceIn(halfHeight, screenHeight - halfHeight)
+
+        selectedX = clampedX
+        selectedY = clampedY
+        markerView?.translationX = clampedX - halfWidth
+        markerView?.translationY = clampedY - halfHeight
+        coordinateLabel?.text = "X: ${selectedX.toInt()}  |  Y: ${selectedY.toInt()}"
+        markerCoordinateLabel?.text = "X ${selectedX.toInt()} · Y ${selectedY.toInt()}"
     }
 
     private fun removeOverlay() {
@@ -123,6 +134,10 @@ class PointPickerOverlayService : Service() {
             windowManager?.removeView(view)
         }
         overlayView = null
+    }
+
+    private fun dp(value: Int): Int {
+        return (value * resources.displayMetrics.density).toInt()
     }
 }
 

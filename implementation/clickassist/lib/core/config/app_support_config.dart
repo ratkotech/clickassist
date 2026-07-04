@@ -4,7 +4,13 @@ class AppSupportConfig {
   AppSupportConfig._();
 
   static const String appName = 'ClickAssist';
-  static const String appVersion = '1.0.0+1';
+  static const String appVersion = '1.0.1';
+  static const String appBuildNumber = '2';
+  static const String appFullVersion = '$appVersion+$appBuildNumber';
+  static const String developerName = 'RatkoTech';
+  static const String projectStatus = 'Open-source project';
+  static const String aboutDescription =
+      'ClickAssist is an Android auto clicker app built with Flutter, using accessibility-based automation and floating overlay controls.';
 
   static const String privacyPolicyUrl = LegalConfig.privacyPolicyUrl;
   static const String termsUrl = LegalConfig.responsibleUseUrl;

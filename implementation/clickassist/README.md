@@ -1,17 +1,36 @@
-# clickassist
+# ClickAssist Flutter Implementation
 
-A new Flutter project.
+This directory contains the runnable Flutter Android implementation for ClickAssist.
 
-## Getting Started
+Current version: 1.0.1
 
-This project is a starting point for a Flutter application.
+## Run Locally
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter pub get
+flutter run
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Build Android Debug APK
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter build apk --debug
+```
+
+The generated debug APK is written to:
+
+```text
+build/app/outputs/flutter-apk/app-debug.apk
+```
+
+## Main Source Areas
+
+- `lib/app/`: app shell, routing, theme, typography, colors, and spacing tokens.
+- `lib/core/`: platform service bridge, local preferences, and support configuration.
+- `lib/features/clicker/`: active clicker domain, state, pages, widgets, presets, setup guide, and dashboard.
+- `lib/widgets/`: shared brand/logo and UI widgets.
+- `android/app/src/main/kotlin/app/clickassist/android/`: native Android accessibility, overlay, notification, and platform-channel integration.
+- `assets/branding/`: runtime Flutter logo and app icon assets.
+- `test/`: widget, controller, branding, theme, and quality-guard tests.
+
+For complete project documentation, see `../../docs/analysis/README.md`.

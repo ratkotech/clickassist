@@ -47,7 +47,12 @@ class _ClickerSectionCardState extends State<ClickerSectionCard> {
       duration: const Duration(milliseconds: 220),
       curve: Curves.easeOutCubic,
       width: double.infinity,
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.lg,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -147,7 +152,7 @@ class _ClickerSectionCardState extends State<ClickerSectionCard> {
               alignment: Alignment.topCenter,
               heightFactor: _isExpanded ? 1 : 0,
               child: Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.lg),
+                padding: const EdgeInsets.only(top: AppSpacing.md),
                 child: widget.child,
               ),
             ),

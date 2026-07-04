@@ -5,6 +5,7 @@ import android.accessibilityservice.GestureDescription
 import android.graphics.Path
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import kotlin.math.max
 
@@ -41,6 +42,7 @@ class AutoClickAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        Log.d(TAG, "accessibility service connected")
         gestureIndicatorOverlay = GestureIndicatorOverlay(this)
         ClickAssistBridge.attachService(this, this)
     }
@@ -58,6 +60,10 @@ class AutoClickAccessibilityService : AccessibilityService() {
     }
 
     fun startClicking(config: AutoClickConfig) {
+        Log.d(
+            TAG,
+            "start command received; points=${config.clickPoints.size}; steps=${config.clickSteps.size}; intervalMs=${config.intervalMs}; startDelayMs=${config.startDelayMs}",
+        )
         activeConfig = config
         totalClicks = 0
         completedCycles = 0
@@ -82,6 +88,7 @@ class AutoClickAccessibilityService : AccessibilityService() {
     }
 
     fun stopClicking(message: String = "Clicker stopped.") {
+        Log.d(TAG, "stopClicking called; wasRunning=$isClicking; message=$message")
         val wasRunning = isClicking
         isClicking = false
         handler.removeCallbacks(clickRunnable)
@@ -121,6 +128,17 @@ class AutoClickAccessibilityService : AccessibilityService() {
         val offsets =
             if (step.actionType == "swipe") listOf(0L) else patternOffsets(config.pattern)
         val completedActionCount = if (step.actionType == "swipe") 1 else offsets.size
+        val targetSafe =
+            FloatingOverlayService.prepareForClickTarget(startPoint.x, startPoint.y) &&
+                (
+                    endPoint == null ||
+                        FloatingOverlayService.prepareForClickTarget(endPoint.x, endPoint.y)
+                    )
+        if (!targetSafe) {
+            Log.d(TAG, "sequential tap skipped by overlay protection at ${startPoint.x.toInt()},${startPoint.y.toInt()}")
+            skipProtectedSequentialStep(config, activeSteps, step, offsets)
+            return
+        }
         showIndicators(config, startPoint, endPoint, offsets, step.actionType)
 
         val gesture =
@@ -193,8 +211,6 @@ class AutoClickAccessibilityService : AccessibilityService() {
                 val offsets =
                     if (step.actionType == "swipe") listOf(0L) else patternOffsets(config.pattern)
 
-                showIndicators(config, startPoint, endPoint, offsets, step.actionType)
-
                 GestureStroke(
                     startPoint = startPoint,
                     endPoint = endPoint,
@@ -208,11 +224,42 @@ class AutoClickAccessibilityService : AccessibilityService() {
             return
         }
 
+        val protectedStrokes =
+            strokes.filter { stroke ->
+                FloatingOverlayService.prepareForClickTarget(stroke.startPoint.x, stroke.startPoint.y) &&
+                    (
+                        stroke.endPoint == null ||
+                            FloatingOverlayService.prepareForClickTarget(stroke.endPoint.x, stroke.endPoint.y)
+                        )
+            }
+
+        if (protectedStrokes.isEmpty()) {
+            Log.d(TAG, "simultaneous cycle skipped because all targets intersect overlay protection")
+            ClickAssistBridge.updateStatus(
+                context = this@AutoClickAccessibilityService,
+                isRunning = true,
+                totalClicks = totalClicks,
+                message = "Tap skipped: overlay protected.",
+            )
+            handler.postDelayed(clickRunnable, simultaneousCycleDelay(activeSteps, strokes))
+            return
+        }
+
+        protectedStrokes.forEach { stroke ->
+            showIndicators(
+                config,
+                stroke.startPoint,
+                stroke.endPoint,
+                stroke.offsets,
+                if (stroke.endPoint != null) "swipe" else "tap",
+            )
+        }
+
         val completedActionCount =
-            strokes.sumOf { stroke ->
+            protectedStrokes.sumOf { stroke ->
                 if (stroke.endPoint != null) 1 else stroke.offsets.size
             }
-        val gesture = buildGesture(strokes)
+        val gesture = buildGesture(protectedStrokes)
         val nextDelay = simultaneousCycleDelay(activeSteps, strokes)
 
         dispatchGesture(
@@ -374,6 +421,34 @@ class AutoClickAccessibilityService : AccessibilityService() {
         handler.postDelayed(clickRunnable, cycleDelay(step, offsets))
     }
 
+    private fun skipProtectedSequentialStep(
+        config: AutoClickConfig,
+        activeSteps: List<NativeClickStep>,
+        step: NativeClickStep,
+        offsets: List<Long>,
+    ) {
+        val stepWasLastInCycle = currentStepIndex == activeSteps.lastIndex
+        currentStepIndex = (currentStepIndex + 1) % activeSteps.size
+
+        if (stepWasLastInCycle) {
+            completedCycles += 1
+        }
+
+        ClickAssistBridge.updateStatus(
+            context = this@AutoClickAccessibilityService,
+            isRunning = true,
+            totalClicks = totalClicks,
+            message = "Tap skipped: overlay protected.",
+        )
+
+        if (!config.infiniteMode && completedCycles >= config.targetCycles) {
+            stopClicking("Target cycle count reached.")
+            return
+        }
+
+        scheduleNextStep(step, offsets)
+    }
+
     private fun advancePastInvalidStep(
         config: AutoClickConfig,
         activeSteps: List<NativeClickStep>,
@@ -397,5 +472,9 @@ class AutoClickAccessibilityService : AccessibilityService() {
         val offsets: List<Long>,
         val pressDurationMs: Long,
     )
+
+    companion object {
+        private const val TAG = "ClickAssistOverlay"
+    }
 }
 

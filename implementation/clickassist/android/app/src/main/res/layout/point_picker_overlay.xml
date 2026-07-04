@@ -2,95 +2,178 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#16050B1D">
+    android:background="#33050B1D">
+
+    <FrameLayout
+        android:id="@+id/pointPickerSurface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="Move target marker" />
 
     <LinearLayout
+        android:id="@+id/pointPickerInstructionCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:layout_margin="20dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/overlay_background"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="14dp"
         android:paddingVertical="12dp">
 
-        <TextView
-            android:id="@+id/pointPickerHint"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="#FFFFFF"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/pointPickerTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans"
+                android:includeFontPadding="false"
+                android:text="Pick target position"
+                android:textColor="#12C8FF"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pointPickerInstruction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:fontFamily="sans"
+                android:includeFontPadding="false"
+                android:text="Drag the marker to the exact place you want to tap."
+                android:textColor="#EAF8FF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/pointPickerSecondaryInstruction"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:fontFamily="sans"
+                android:includeFontPadding="false"
+                android:text="Press Confirm when the marker is correctly placed."
+                android:textColor="#93A4C8"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pointPickerActionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="28dp"
+        android:background="@drawable/overlay_background"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="10dp">
+
+        <TextView
+            android:id="@+id/pointPickerCoordinates"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:fontFamily="sans"
+            android:includeFontPadding="false"
+            android:text="X: 0  |  Y: 0"
+            android:textColor="#EAF8FF"
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <ImageView
-            android:id="@+id/pointPickerCloseButton"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:contentDescription="Cancel picker"
-            android:src="@android:drawable/ic_menu_close_clear_cancel"
-            android:tint="#93A4C8" />
+        <TextView
+            android:id="@+id/pointPickerCancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:background="@drawable/overlay_button_background"
+            android:contentDescription="Cancel target picker"
+            android:gravity="center"
+            android:minWidth="76dp"
+            android:paddingHorizontal="14dp"
+            android:text="Cancel"
+            android:textColor="#EAF8FF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pointPickerConfirmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/overlay_button_active_background"
+            android:contentDescription="Confirm target position"
+            android:gravity="center"
+            android:minWidth="92dp"
+            android:paddingHorizontal="16dp"
+            android:text="Confirm"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/pointPickerSurface"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:id="@+id/pointPickerMarker"
+        android:layout_width="112dp"
+        android:layout_height="112dp"
+        android:layout_gravity="top|start"
+        android:contentDescription="Drag target marker to exact tap point">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_margin="20dp"
-            android:background="@drawable/overlay_background"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="14dp"
-            android:paddingVertical="12dp">
+        <View
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center"
+            android:background="@drawable/point_picker_marker_glow" />
 
-            <TextView
-                android:id="@+id/pointPickerCoordinates"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="X 0 | Y 0"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+        <View
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:background="@drawable/point_picker_marker_ring" />
 
-            <TextView
-                android:id="@+id/pointPickerConfirmButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:paddingHorizontal="14dp"
-                android:paddingVertical="8dp"
-                android:text="Confirm"
-                android:textColor="#12C8FF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-        </LinearLayout>
+        <View
+            android:layout_width="76dp"
+            android:layout_height="2dp"
+            android:layout_gravity="center"
+            android:background="#EAF8FF" />
 
-        <FrameLayout
-            android:id="@+id/pointPickerMarker"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="top|start">
+        <View
+            android:layout_width="2dp"
+            android:layout_height="76dp"
+            android:layout_gravity="center"
+            android:background="#EAF8FF" />
 
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:contentDescription="Target marker"
-                android:src="@android:drawable/ic_menu_mylocation"
-                android:tint="#12C8FF" />
+        <View
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_gravity="center"
+            android:background="@drawable/point_picker_marker_center" />
 
-            <View
-                android:layout_width="6dp"
-                android:layout_height="6dp"
-                android:layout_gravity="center"
-                android:background="#9BEAFF" />
-        </FrameLayout>
+        <TextView
+            android:id="@+id/pointPickerMarkerCoordinates"
+            android:layout_width="wrap_content"
+            android:layout_height="28dp"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="@drawable/overlay_button_background"
+            android:fontFamily="sans"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:minWidth="88dp"
+            android:paddingHorizontal="10dp"
+            android:text="Drag me"
+            android:textColor="#EAF8FF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
     </FrameLayout>
 
 </FrameLayout>
